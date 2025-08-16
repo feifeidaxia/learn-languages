@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,12 +15,17 @@ import StoryCard from '@/components/StoryCard';
 import AudioControls from '@/components/AudioControls';
 import PronunciationFeedback from '@/components/PronunciationFeedback';
 import { useAudio } from '@/hooks/useAudio';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function PracticeScreen() {
   const [currentStory, setCurrentStory] = useState<Story | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<'zh' | 'en' | 'ja'>('en');
-  const [pronunciationScore, setPronunciationScore] = useState<PronunciationScore | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<'zh' | 'en' | 'ja'>(
+    'en'
+  );
+  const [pronunciationScore, setPronunciationScore] =
+    useState<PronunciationScore | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const { colors } = useTheme();
 
   const {
     audioState,
@@ -55,7 +60,10 @@ export default function PracticeScreen() {
     try {
       await startRecording();
     } catch (error) {
-      Alert.alert('Error', 'Failed to start recording. Please check microphone permissions.');
+      Alert.alert(
+        'Error',
+        'Failed to start recording. Please check microphone permissions.'
+      );
     }
   };
 
@@ -75,7 +83,7 @@ export default function PracticeScreen() {
 
   const getSelectedText = () => {
     if (!currentStory) return '';
-    
+
     switch (selectedLanguage) {
       case 'zh':
         return currentStory.chinese.text;
@@ -88,16 +96,97 @@ export default function PracticeScreen() {
     }
   };
 
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        header: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          paddingVertical: 20,
+          backgroundColor: colors.surface,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        title: {
+          fontSize: 28,
+          fontWeight: '700',
+          color: colors.text,
+        },
+        refreshButton: {
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          backgroundColor: colors.surfaceVariant,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        practiceSection: {
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          padding: 20,
+          margin: 16,
+          marginTop: 24,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        sectionTitle: {
+          fontSize: 20,
+          fontWeight: '700',
+          color: colors.text,
+          marginBottom: 16,
+        },
+        selectedText: {
+          fontSize: 18,
+          lineHeight: 26,
+          color: colors.text,
+          marginBottom: 16,
+          fontWeight: '500',
+          backgroundColor: colors.surfaceVariant,
+          padding: 16,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        instruction: {
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.textSecondary,
+          marginBottom: 20,
+        },
+        recordingStatus: {
+          backgroundColor: colors.success + '20',
+          padding: 16,
+          borderRadius: 8,
+          marginTop: 16,
+          borderWidth: 1,
+          borderColor: colors.success + '40',
+        },
+        recordingText: {
+          fontSize: 16,
+          color: colors.success,
+          textAlign: 'center',
+          fontWeight: '500',
+        },
+      }),
+    [colors]
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Practice</Text>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
+        <Text style={dynamicStyles.title}>Practice</Text>
         <TouchableOpacity
-          style={styles.refreshButton}
+          style={dynamicStyles.refreshButton}
           onPress={loadNewStory}
           disabled={isLoading}
         >
-          <RefreshCw size={24} color="#6366f1" />
+          <RefreshCw size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -114,11 +203,11 @@ export default function PracticeScreen() {
           />
         )}
 
-        <View style={styles.practiceSection}>
-          <Text style={styles.sectionTitle}>Practice Section</Text>
-          <Text style={styles.selectedText}>{getSelectedText()}</Text>
-          
-          <Text style={styles.instruction}>
+        <View style={dynamicStyles.practiceSection}>
+          <Text style={dynamicStyles.sectionTitle}>Practice Section</Text>
+          <Text style={dynamicStyles.selectedText}>{getSelectedText()}</Text>
+
+          <Text style={dynamicStyles.instruction}>
             1. Listen to the original pronunciation{'\n'}
             2. Press the record button and speak{'\n'}
             3. Stop recording to get feedback
@@ -135,8 +224,8 @@ export default function PracticeScreen() {
           />
 
           {recordingUri && (
-            <View style={styles.recordingStatus}>
-              <Text style={styles.recordingText}>
+            <View style={dynamicStyles.recordingStatus}>
+              <Text style={dynamicStyles.recordingText}>
                 ✓ Recording saved - Press play to listen
               </Text>
             </View>
@@ -153,86 +242,10 @@ export default function PracticeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  refreshButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingVertical: 16,
-  },
-  practiceSection: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 20,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 16,
-  },
-  selectedText: {
-    fontSize: 18,
-    lineHeight: 26,
-    color: '#374151',
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: '#f9fafb',
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: '#6366f1',
-  },
-  instruction: {
-    fontSize: 14,
-    color: '#6b7280',
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  recordingStatus: {
-    backgroundColor: '#dcfce7',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 12,
-  },
-  recordingText: {
-    fontSize: 14,
-    color: '#166534',
-    textAlign: 'center',
-    fontWeight: '500',
   },
 });

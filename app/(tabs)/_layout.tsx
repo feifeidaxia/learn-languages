@@ -1,17 +1,20 @@
 import { Tabs } from 'expo-router';
 import { BookOpen, Mic, BarChart3, Settings } from 'lucide-react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#6366f1',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.surface,
           borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
+          borderTopColor: colors.border,
           paddingBottom: 8,
           paddingTop: 8,
           height: 80,
@@ -20,7 +23,8 @@ export default function TabLayout() {
           fontSize: 12,
           fontWeight: '600',
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -34,9 +38,7 @@ export default function TabLayout() {
         name="practice"
         options={{
           title: 'Practice',
-          tabBarIcon: ({ size, color }) => (
-            <Mic size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Mic size={size} color={color} />,
         }}
       />
       <Tabs.Screen

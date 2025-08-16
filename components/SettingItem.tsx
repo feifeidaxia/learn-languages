@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { View, Text, StyleSheet, Switch } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 type Props = {
   icon: ReactElement;
@@ -19,65 +20,77 @@ const SettingItem: React.FC<Props> = ({
   onToggle,
   showArrow = false,
 }) => {
+  const { colors } = useTheme();
+
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        settingItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 16,
+          paddingVertical: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.divider,
+          backgroundColor: colors.surface,
+        },
+        settingIcon: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: colors.surfaceVariant,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginRight: 12,
+        },
+        settingTitle: {
+          fontSize: 16,
+          fontWeight: '600',
+          color: colors.text,
+        },
+        settingSubtitle: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
+      }),
+    [colors]
+  );
+
   return (
-    <View style={styles.settingItem}>
+    <View style={dynamicStyles.settingItem}>
       <View style={styles.settingLeft}>
-        <View style={styles.settingIcon}>{icon}</View>
+        <View style={dynamicStyles.settingIcon}>{icon}</View>
         <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+          <Text style={dynamicStyles.settingTitle}>{title}</Text>
+          {subtitle && (
+            <Text style={dynamicStyles.settingSubtitle}>{subtitle}</Text>
+          )}
         </View>
       </View>
       {value !== undefined ? (
         <Switch
           value={value}
           onValueChange={onToggle}
-          trackColor={{ false: '#e5e7eb', true: '#6366f1' }}
-          thumbColor="#ffffff"
+          trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
+          thumbColor={colors.surface}
         />
       ) : showArrow ? (
-        <ChevronRight size={20} color="#9ca3af" />
+        <ChevronRight size={20} color={colors.textTertiary} />
       ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  settingIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
   settingText: {
     flex: 1,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  settingSubtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 2,
   },
 });
 

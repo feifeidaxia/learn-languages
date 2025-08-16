@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,13 +19,14 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import SettingItem from '../../components/SettingItem';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function SettingsScreen() {
+  const { colors, theme, setSpecificTheme } = useTheme();
   const [settings, setSettings] = useState({
     soundEffects: true,
     autoPlay: false,
     notifications: true,
-    darkMode: false,
     highQualityAudio: true,
   });
 
@@ -36,36 +37,114 @@ export default function SettingsScreen() {
     }));
   };
 
+  const handleThemeChange = () => {
+    if (theme === 'light') {
+      setSpecificTheme('dark');
+    } else {
+      setSpecificTheme('light');
+    }
+  };
+
+  const getThemeDisplayName = () => {
+    return theme === 'dark' ? 'Dark' : 'Light';
+  };
+
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        header: {
+          paddingHorizontal: 16,
+          paddingVertical: 20,
+          backgroundColor: colors.surface,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        title: {
+          fontSize: 28,
+          fontWeight: '700',
+          color: colors.text,
+        },
+        scrollView: {
+          flex: 1,
+        },
+        scrollContent: {
+          paddingVertical: 16,
+        },
+        section: {
+          marginBottom: 24,
+        },
+        sectionTitle: {
+          fontSize: 16,
+          fontWeight: '600',
+          color: colors.textSecondary,
+          marginLeft: 16,
+          marginBottom: 8,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+        },
+        sectionContent: {
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          marginHorizontal: 16,
+          shadowColor: colors.shadow,
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 3.84,
+          elevation: 5,
+        },
+        footer: {
+          padding: 15,
+          alignItems: 'center',
+        },
+        footerText: {
+          fontSize: 14,
+          color: colors.textTertiary,
+          textAlign: 'center',
+          marginBottom: 4,
+        },
+      }),
+    [colors]
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
+    <SafeAreaView style={dynamicStyles.container}>
+      <View style={dynamicStyles.header}>
+        <Text style={dynamicStyles.title}>Settings</Text>
       </View>
 
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={dynamicStyles.scrollView}
+        contentContainerStyle={dynamicStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Audio</Text>
-          <View style={styles.sectionContent}>
+        <View style={dynamicStyles.section}>
+          <Text style={dynamicStyles.sectionTitle}>Audio</Text>
+          <View style={dynamicStyles.sectionContent}>
             <SettingItem
-              icon={<Volume2 key="soundEffects" size={20} color="#6366f1" />}
+              icon={
+                <Volume2 key="soundEffects" size={20} color={colors.primary} />
+              }
               title="Sound Effects"
               subtitle="Play sounds for interactions"
               value={settings.soundEffects}
               onToggle={() => toggleSetting('soundEffects')}
             />
             <SettingItem
-              icon={<Mic size={20} color="#6366f1" />}
+              icon={<Mic size={20} color={colors.primary} />}
               title="High Quality Audio"
               subtitle="Better audio quality, uses more data"
               value={settings.highQualityAudio}
               onToggle={() => toggleSetting('highQualityAudio')}
             />
             <SettingItem
-              icon={<Volume2 key="autoPlay" size={20} color="#6366f1" />}
+              icon={<Volume2 key="autoPlay" size={20} color={colors.primary} />}
               title="Auto Play"
               subtitle="Automatically play audio when viewing stories"
               value={settings.autoPlay}
@@ -74,25 +153,27 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>General</Text>
-          <View style={styles.sectionContent}>
+        <View style={dynamicStyles.section}>
+          <Text style={dynamicStyles.sectionTitle}>General</Text>
+          <View style={dynamicStyles.sectionContent}>
             <SettingItem
-              icon={<Bell key="notifications" size={20} color="#10b981" />}
+              icon={
+                <Bell key="notifications" size={20} color={colors.success} />
+              }
               title="Notifications"
               subtitle="Daily practice reminders"
               value={settings.notifications}
               onToggle={() => toggleSetting('notifications')}
             />
             <SettingItem
-              icon={<Moon key="darkMode" size={20} color="#7c3aed" />}
+              icon={<Moon key="darkMode" size={20} color={colors.primary} />}
               title="Dark Mode"
-              subtitle="Use dark theme"
-              value={settings.darkMode}
-              onToggle={() => toggleSetting('darkMode')}
+              subtitle={`Current: ${getThemeDisplayName()}`}
+              value={theme === 'dark'}
+              onToggle={handleThemeChange}
             />
             <SettingItem
-              icon={<Globe size={20} color="#f59e0b" />}
+              icon={<Globe size={20} color={colors.warning} />}
               title="Language Preferences"
               subtitle="Set primary learning language"
               showArrow
@@ -100,17 +181,17 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
-          <View style={styles.sectionContent}>
+        <View style={dynamicStyles.section}>
+          <Text style={dynamicStyles.sectionTitle}>Support</Text>
+          <View style={dynamicStyles.sectionContent}>
             <SettingItem
-              icon={<HelpCircle size={20} color="#64748b" />}
+              icon={<HelpCircle size={20} color={colors.textTertiary} />}
               title="Help & FAQ"
               subtitle="Get help and answers"
               showArrow
             />
             <SettingItem
-              icon={<Star size={20} color="#fbbf24" />}
+              icon={<Star size={20} color={colors.warning} />}
               title="Rate the App"
               subtitle="Help us improve"
               showArrow
@@ -118,73 +199,16 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Version 1.0.0</Text>
-          <Text style={styles.footerText}>
-            Made with ❤️ for language learners
+        <View style={dynamicStyles.footer}>
+          <Text style={dynamicStyles.footerText}>Version 1.0.0</Text>
+          <Text style={dynamicStyles.footerText}>
+            Made with Hong for language learners❤
+          </Text>
+          <Text style={dynamicStyles.footerText}>
+            Powered by Cursor🦊
           </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingVertical: 16,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginLeft: 16,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  sectionContent: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  footer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#9ca3af',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-});

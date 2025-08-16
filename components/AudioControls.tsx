@@ -1,7 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Play, Pause, Square, Mic, MicOff } from 'lucide-react-native';
 import { AudioState } from '@/types/Story';
+import { useTheme } from '@/hooks/useTheme';
 
 interface AudioControlsProps {
   audioState: AudioState;
@@ -22,6 +29,8 @@ export default function AudioControls({
   onStopRecording,
   isLoading = false,
 }: AudioControlsProps) {
+  const { colors } = useTheme();
+
   const formatTime = (milliseconds: number) => {
     const seconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -29,53 +38,108 @@ export default function AudioControls({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          padding: 16,
+          margin: 16,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        progressContainer: {
+          marginBottom: 16,
+        },
+        progressBar: {
+          height: 6,
+          backgroundColor: colors.surfaceVariant,
+          borderRadius: 3,
+          marginBottom: 8,
+          overflow: 'hidden',
+        },
+        progressFill: {
+          height: '100%',
+          backgroundColor: colors.primary,
+          borderRadius: 3,
+        },
+        timeText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          textAlign: 'center',
+        },
+        controlsContainer: {
+          flexDirection: 'row',
+          justifyContent: 'center',
+          gap: 16,
+        },
+        controlButton: {
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: colors.surfaceVariant,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        recordingButton: {
+          backgroundColor: colors.error,
+          borderColor: colors.error,
+        },
+      }),
+    [colors]
+  );
+
   return (
-    <View style={styles.container}>
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
+    <View style={dynamicStyles.container}>
+      <View style={dynamicStyles.progressContainer}>
+        <View style={dynamicStyles.progressBar}>
           <View
             style={[
-              styles.progressFill,
+              dynamicStyles.progressFill,
               {
-                width: audioState.duration > 0
-                  ? `${(audioState.position / audioState.duration) * 100}%`
-                  : '0%',
+                width:
+                  audioState.duration > 0
+                    ? `${(audioState.position / audioState.duration) * 100}%`
+                    : '0%',
               },
             ]}
           />
         </View>
-        <Text style={styles.timeText}>
+        <Text style={dynamicStyles.timeText}>
           {formatTime(audioState.position)} / {formatTime(audioState.duration)}
         </Text>
       </View>
 
-      <View style={styles.controlsContainer}>
+      <View style={dynamicStyles.controlsContainer}>
         <TouchableOpacity
-          style={styles.controlButton}
+          style={dynamicStyles.controlButton}
           onPress={audioState.isPlaying ? onPause : onPlay}
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator size="small" color="#6366f1" />
+            <ActivityIndicator size="small" color={colors.primary} />
           ) : audioState.isPlaying ? (
-            <Pause size={24} color="#6366f1" />
+            <Pause size={24} color={colors.primary} />
           ) : (
-            <Play size={24} color="#6366f1" />
+            <Play size={24} color={colors.primary} />
           )}
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.controlButton}
+          style={dynamicStyles.controlButton}
           onPress={onStop}
           disabled={isLoading}
         >
-          <Square size={24} color="#6366f1" />
+          <Square size={24} color={colors.primary} />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
-            styles.controlButton,
-            audioState.isRecording && styles.recordingButton,
+            dynamicStyles.controlButton,
+            audioState.isRecording && dynamicStyles.recordingButton,
           ]}
           onPress={audioState.isRecording ? onStopRecording : onStartRecording}
           disabled={isLoading}
@@ -83,63 +147,10 @@ export default function AudioControls({
           {audioState.isRecording ? (
             <MicOff size={24} color="#ffffff" />
           ) : (
-            <Mic size={24} color="#ef4444" />
+            <Mic size={24} color={colors.error} />
           )}
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 12,
-    padding: 16,
-    margin: 16,
-  },
-  progressContainer: {
-    marginBottom: 16,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: '#e2e8f0',
-    borderRadius: 2,
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#6366f1',
-    borderRadius: 2,
-  },
-  timeText: {
-    fontSize: 12,
-    color: '#64748b',
-    textAlign: 'center',
-  },
-  controlsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 20,
-  },
-  controlButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  recordingButton: {
-    backgroundColor: '#ef4444',
-  },
-});
