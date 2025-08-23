@@ -14,6 +14,7 @@ import { useAudio } from '@/hooks/useAudio';
 import { useTheme } from '@/hooks/useTheme';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { getRandomStory } from '@/data/stories';
+import StoryCardSkeleton from '@/components/StoryCardSkeleton';
 
 export default function StoriesScreen() {
   const { playTextToSpeech, audioState } = useAudio();
@@ -116,11 +117,15 @@ export default function StoriesScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View>
-          <StoryCard
-            story={currentStory}
-            onPlayAudio={handlePlayAudio}
-            isPlaying={audioState.isPlaying}
-          />
+          {isGenerating || isInitialLoading ? (
+            <StoryCardSkeleton />
+          ) : (
+            <StoryCard
+              story={currentStory}
+              onPlayAudio={handlePlayAudio}
+              isPlaying={audioState.isPlaying}
+            />
+          )}
         </View>
 
         <View style={dynamicStyles.instructions}>
