@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { BookOpen, Mic, BarChart3, Settings } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
+import React from 'react';
 
 export default function TabLayout() {
   const { colors } = useTheme();

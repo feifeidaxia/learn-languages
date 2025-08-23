@@ -13,8 +13,10 @@ export const stories: Story[] = [
     },
     japanese: {
       text: '今日は本当にいい天気ですね。公園を散歩したいです。',
-      hiragana: 'きょうはほんとうにいいてんきですね。こうえんをさんぽしたいです。',
-      katakana: 'キョウハホントウニイイテンキデスネ。コウエンヲサンポシタイデス。',
+      hiragana:
+        'きょうはほんとうにいいてんきですね。こうえんをさんぽしたいです。',
+      katakana:
+        'キョウハホントウニイイテンキデスネ。コウエンヲサンポシタイデス。',
     },
     category: 'daily_life',
     difficulty: 'beginner',
@@ -96,12 +98,4 @@ export const stories: Story[] = [
 export const getRandomStory = (): Story => {
   const randomIndex = Math.floor(Math.random() * stories.length);
   return stories[randomIndex];
-};
-
-export const getStoriesByDifficulty = (difficulty: Story['difficulty']): Story[] => {
-  return stories.filter(story => story.difficulty === difficulty);
-};
-
-export const getStoriesByCategory = (category: string): Story[] => {
-  return stories.filter(story => story.category === category);
 };

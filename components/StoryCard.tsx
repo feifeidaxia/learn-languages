@@ -20,6 +20,12 @@ export default function StoryCard({
   >(null);
   const { colors } = useTheme();
 
+  /**
+   * 根据故事难度获取对应的颜色
+   *
+   * @param difficulty 故事难度，取值范围：'beginner', 'intermediate', 'advanced'
+   * @returns 返回对应难度的颜色
+   */
   const getDifficultyColor = (difficulty: Story['difficulty']) => {
     switch (difficulty) {
       case 'beginner':
@@ -136,13 +142,13 @@ export default function StoryCard({
         <View
           style={[
             dynamicStyles.difficultyBadge,
-            { backgroundColor: getDifficultyColor(story.difficulty) },
+            { backgroundColor: getDifficultyColor(story?.difficulty) },
           ]}
         >
-          <Text style={dynamicStyles.difficultyText}>{story.difficulty}</Text>
+          <Text style={dynamicStyles.difficultyText}>{story?.difficulty}</Text>
         </View>
-        <Text style={dynamicStyles.category}>
-          {story.category.replace('_', ' ')}
+        <Text style={dynamicStyles?.category}>
+          {story?.category?.replace('_', ' ')}
         </Text>
       </View>
 
@@ -164,8 +170,8 @@ export default function StoryCard({
             )}
           </TouchableOpacity>
         </View>
-        <Text style={dynamicStyles.mainText}>{story.chinese.text}</Text>
-        <Text style={dynamicStyles.phoneticText}>{story.chinese.pinyin}</Text>
+        <Text style={dynamicStyles.mainText}>{story?.chinese.text}</Text>
+        <Text style={dynamicStyles.phoneticText}>{story?.chinese.pinyin}</Text>
       </View>
 
       {/* English Section */}
@@ -186,8 +192,8 @@ export default function StoryCard({
             )}
           </TouchableOpacity>
         </View>
-        <Text style={dynamicStyles.mainText}>{story.english.text}</Text>
-        <Text style={dynamicStyles.phoneticText}>{story.english.ipa}</Text>
+        <Text style={dynamicStyles.mainText}>{story?.english.text}</Text>
+        <Text style={dynamicStyles.phoneticText}>{story?.english.ipa}</Text>
       </View>
 
       {/* Japanese Section */}
@@ -208,9 +214,9 @@ export default function StoryCard({
             )}
           </TouchableOpacity>
         </View>
-        <Text style={dynamicStyles.mainText}>{story.japanese.text}</Text>
+        <Text style={dynamicStyles.mainText}>{story?.japanese.text}</Text>
         <Text style={dynamicStyles.phoneticText}>
-          {story.japanese.hiragana}
+          {story?.japanese.hiragana}
         </Text>
       </View>
     </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,26 +6,44 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
+  Animated,
 } from 'react-native';
 import { RefreshCw } from 'lucide-react-native';
-import { Story } from '@/types/Story';
-import { getRandomStory } from '@/data/stories';
 import StoryCard from '@/components/StoryCard';
 import { useAudio } from '@/hooks/useAudio';
 import { useTheme } from '@/hooks/useTheme';
+import { useStoryGeneration } from '@/hooks/useStoryGeneration';
+import { getRandomStory } from '@/data/stories';
 
 export default function StoriesScreen() {
-  const [currentStory, setCurrentStory] = useState<Story | null>(null);
-  const { playTextToSpeech, audioState, isLoading } = useAudio();
+  const { playTextToSpeech, audioState } = useAudio();
   const { colors } = useTheme();
 
+  const { isGenerating, generateNewStory } = useStoryGeneration();
+
+  const [currentStory, setCurrentStory] = useState<any>(getRandomStory());
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   useEffect(() => {
-    loadNewStory();
+    setCurrentStory(getRandomStory());
+    setIsInitialLoading(false);
   }, []);
 
-  const loadNewStory = () => {
-    const newStory = getRandomStory();
-    setCurrentStory(newStory);
+  const loadNewStory = async (initial = false) => {
+    if (initial) {
+      // 初次时直接返回本地 story，不调接口
+      return getRandomStory();
+    }
+
+    try {
+      const story = await generateNewStory();
+      console.log('📖 加载新故事：');
+      setCurrentStory(story);
+
+      // return story;
+    } catch {
+      return currentStory || getRandomStory();
+    }
   };
 
   const handlePlayAudio = (text: string, language: 'zh' | 'en' | 'ja') => {
@@ -35,10 +53,7 @@ export default function StoriesScreen() {
   const dynamicStyles = useMemo(
     () =>
       StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
+        container: { flex: 1, backgroundColor: colors.background },
         header: {
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -49,11 +64,7 @@ export default function StoriesScreen() {
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
-        title: {
-          fontSize: 28,
-          fontWeight: '700',
-          color: colors.text,
-        },
+        title: { fontSize: 28, fontWeight: '700', color: colors.text },
         refreshButton: {
           width: 44,
           height: 44,
@@ -92,8 +103,8 @@ export default function StoriesScreen() {
         <Text style={dynamicStyles.title}>Multilingual Stories</Text>
         <TouchableOpacity
           style={dynamicStyles.refreshButton}
-          onPress={loadNewStory}
-          disabled={isLoading}
+          onPress={() => loadNewStory()}
+          disabled={isGenerating}
         >
           <RefreshCw size={24} color={colors.primary} />
         </TouchableOpacity>
@@ -104,13 +115,13 @@ export default function StoriesScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {currentStory && (
+        <View>
           <StoryCard
             story={currentStory}
             onPlayAudio={handlePlayAudio}
             isPlaying={audioState.isPlaying}
           />
-        )}
+        </View>
 
         <View style={dynamicStyles.instructions}>
           <Text style={dynamicStyles.instructionsTitle}>How to use</Text>
@@ -127,10 +138,6 @@ export default function StoriesScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingVertical: 16,
-  },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingVertical: 16 },
 });
