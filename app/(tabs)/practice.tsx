@@ -16,9 +16,12 @@ import AudioControls from '@/components/AudioControls';
 import PronunciationFeedback from '@/components/PronunciationFeedback';
 import { useAudio } from '@/hooks/useAudio';
 import { useTheme } from '@/hooks/useTheme';
+import { useStoryGeneration } from '@/hooks/useStoryGeneration';
+import StoryCardSkeleton from '@/components/StoryCardSkeleton';
+import WaveformDisplay from '@/components/WaveformDisplay';
 
 export default function PracticeScreen() {
-  const [currentStory, setCurrentStory] = useState<Story | null>(null);
+  const [currentStory, setCurrentStory] = useState<any>(getRandomStory());
   const [selectedLanguage, setSelectedLanguage] = useState<'zh' | 'en' | 'ja'>(
     'en'
   );
@@ -26,29 +29,37 @@ export default function PracticeScreen() {
     useState<PronunciationScore | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const { colors } = useTheme();
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const { isGenerating, generateNewStory } = useStoryGeneration();
 
   const {
     audioState,
     isLoading,
     recordingUri,
+    waveform,
+    recordingPosition,
     playTextToSpeech,
     startRecording,
     stopRecording,
     playRecording,
     pausePlayback,
     stopPlayback,
+    resetAudio,
     analyzePronunciation,
   } = useAudio();
 
   useEffect(() => {
-    loadNewStory();
+    setCurrentStory(getRandomStory());
+    setIsInitialLoading(false);
   }, []);
 
-  const loadNewStory = () => {
-    const newStory = getRandomStory();
-    setCurrentStory(newStory);
-    setPronunciationScore(null);
-    setShowFeedback(false);
+  const loadNewStory = async () => {
+    try {
+      const story = await generateNewStory();
+      setCurrentStory(story);
+    } catch {
+      setCurrentStory(getRandomStory());
+    }
   };
 
   const handlePlayAudio = (text: string, language: 'zh' | 'en' | 'ja') => {
@@ -59,31 +70,25 @@ export default function PracticeScreen() {
   const handleStartRecording = async () => {
     try {
       await startRecording();
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'Failed to start recording. Please check microphone permissions.'
-      );
+      setShowFeedback(false);
+    } catch {
+      Alert.alert('Error', 'Failed to start recording.');
     }
   };
 
   const handleStopRecording = async () => {
     try {
       await stopRecording();
-      // Analyze pronunciation after recording
-      setTimeout(async () => {
-        const score = await analyzePronunciation();
-        setPronunciationScore(score);
-        setShowFeedback(true);
-      }, 1000);
-    } catch (error) {
+      const score = await analyzePronunciation();
+      setPronunciationScore(score);
+      setShowFeedback(true);
+    } catch {
       Alert.alert('Error', 'Failed to stop recording.');
     }
   };
 
   const getSelectedText = () => {
     if (!currentStory) return '';
-
     switch (selectedLanguage) {
       case 'zh':
         return currentStory.chinese.text;
@@ -99,10 +104,7 @@ export default function PracticeScreen() {
   const dynamicStyles = useMemo(
     () =>
       StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
+        container: { flex: 1, backgroundColor: colors.background },
         header: {
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -113,11 +115,7 @@ export default function PracticeScreen() {
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
-        title: {
-          fontSize: 28,
-          fontWeight: '700',
-          color: colors.text,
-        },
+        title: { fontSize: 28, fontWeight: '700', color: colors.text },
         refreshButton: {
           width: 44,
           height: 44,
@@ -184,7 +182,7 @@ export default function PracticeScreen() {
         <TouchableOpacity
           style={dynamicStyles.refreshButton}
           onPress={loadNewStory}
-          disabled={isLoading}
+          disabled={isGenerating}
         >
           <RefreshCw size={24} color={colors.primary} />
         </TouchableOpacity>
@@ -195,7 +193,9 @@ export default function PracticeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {currentStory && (
+        {isGenerating || isInitialLoading ? (
+          <StoryCardSkeleton />
+        ) : (
           <StoryCard
             story={currentStory}
             onPlayAudio={handlePlayAudio}
@@ -217,13 +217,25 @@ export default function PracticeScreen() {
             audioState={audioState}
             onPlay={playRecording}
             onPause={pausePlayback}
-            onStop={stopPlayback}
+            onStop={async () => {
+              await resetAudio();
+              setShowFeedback(false);
+            }}
             onStartRecording={handleStartRecording}
             onStopRecording={handleStopRecording}
             isLoading={isLoading}
           />
 
-          {recordingUri && (
+          {audioState.isRecording && (
+            <View style={{ marginTop: 16, alignItems: 'center' }}>
+              <WaveformDisplay waveform={waveform} />
+              <Text style={dynamicStyles.recordingText}>
+                {`Recording: ${(recordingPosition / 1000).toFixed(1)}s`}
+              </Text>
+            </View>
+          )}
+
+          {recordingUri && !audioState.isRecording && (
             <View style={dynamicStyles.recordingStatus}>
               <Text style={dynamicStyles.recordingText}>
                 ✓ Recording saved - Press play to listen
@@ -242,10 +254,6 @@ export default function PracticeScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingVertical: 16,
-  },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingVertical: 16 },
 });

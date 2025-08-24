@@ -1,3 +1,4 @@
+// components/AudioControls.tsx
 import React, { useMemo } from 'react';
 import {
   View,
@@ -31,11 +32,11 @@ export default function AudioControls({
 }: AudioControlsProps) {
   const { colors } = useTheme();
 
-  const formatTime = (milliseconds: number) => {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  const formatTime = (ms: number) => {
+    const sec = Math.floor(Math.max(0, ms) / 1000);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const dynamicStyles = useMemo(
@@ -49,9 +50,7 @@ export default function AudioControls({
           borderWidth: 1,
           borderColor: colors.border,
         },
-        progressContainer: {
-          marginBottom: 16,
-        },
+        progressContainer: { marginBottom: 16 },
         progressBar: {
           height: 6,
           backgroundColor: colors.surfaceVariant,
@@ -69,11 +68,7 @@ export default function AudioControls({
           color: colors.textSecondary,
           textAlign: 'center',
         },
-        controlsContainer: {
-          flexDirection: 'row',
-          justifyContent: 'center',
-          gap: 16,
-        },
+        controlsContainer: { flexDirection: 'row', justifyContent: 'center' },
         controlButton: {
           width: 56,
           height: 56,
@@ -83,33 +78,45 @@ export default function AudioControls({
           alignItems: 'center',
           borderWidth: 1,
           borderColor: colors.border,
+          marginHorizontal: 8, // 用 margin 代替 gap，兼容性更好
         },
         recordingButton: {
           backgroundColor: colors.error,
           borderColor: colors.error,
         },
+        recText: { color: colors.error, fontWeight: '600' },
       }),
     [colors]
   );
+
+  const isRecording = audioState.isRecording;
+
+  // 录音时：duration = position（在 hook 里已处理），否则走正常播放进度
+  const percent =
+    audioState.duration > 0
+      ? Math.min(100, (audioState.position / audioState.duration) * 100)
+      : 0;
 
   return (
     <View style={dynamicStyles.container}>
       <View style={dynamicStyles.progressContainer}>
         <View style={dynamicStyles.progressBar}>
           <View
-            style={[
-              dynamicStyles.progressFill,
-              {
-                width:
-                  audioState.duration > 0
-                    ? `${(audioState.position / audioState.duration) * 100}%`
-                    : '0%',
-              },
-            ]}
+            style={[dynamicStyles.progressFill, { width: `${percent}%` }]}
           />
         </View>
         <Text style={dynamicStyles.timeText}>
-          {formatTime(audioState.position)} / {formatTime(audioState.duration)}
+          {isRecording ? (
+            <>
+              <Text style={dynamicStyles.recText}>REC • </Text>
+              {/* {formatTime(audioState.position)} */}
+            </>
+          ) : (
+            <>
+              {formatTime(audioState.position)} /{' '}
+              {formatTime(audioState.duration)}
+            </>
+          )}
         </Text>
       </View>
 
@@ -117,7 +124,7 @@ export default function AudioControls({
         <TouchableOpacity
           style={dynamicStyles.controlButton}
           onPress={audioState.isPlaying ? onPause : onPlay}
-          disabled={isLoading}
+          disabled={isLoading || isRecording /* 录音中禁用播放键 */}
         >
           {isLoading ? (
             <ActivityIndicator size="small" color={colors.primary} />

@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Audio } from 'expo-av';
 import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
-import { AudioState, RecordingResult, PronunciationScore } from '@/types/Story';
+import { AudioState, PronunciationScore } from '@/types/Story';
 
 export const useAudio = () => {
   const [audioState, setAudioState] = useState<AudioState>({
@@ -14,8 +14,13 @@ export const useAudio = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
 
+  const [waveform, setWaveform] = useState<number[]>([]);
+  const [recordingPosition, setRecordingPosition] = useState(0);
+
   const soundRef = useRef<Audio.Sound | null>(null);
   const recordingRef = useRef<Audio.Recording | null>(null);
+  const recordingInterval = useRef<NodeJS.Timer | null>(null);
+  const maxWaveformLength = 30;
 
   const initializeAudio = useCallback(async () => {
     try {
@@ -34,14 +39,9 @@ export const useAudio = () => {
       setIsLoading(true);
       setAudioState(prev => ({ ...prev, isPlaying: true }));
 
-      const languageMap = {
-        zh: 'zh-CN',
-        en: 'en-US',
-        ja: 'ja-JP',
-      };
+      const languageMap = { zh: 'zh-CN', en: 'en-US', ja: 'ja-JP' };
 
       if (Platform.OS === 'web') {
-        // Web implementation - basic functionality
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = languageMap[language];
         utterance.onend = () => {
@@ -77,9 +77,26 @@ export const useAudio = () => {
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
-      
       recordingRef.current = recording;
+
       setAudioState(prev => ({ ...prev, isRecording: true }));
+      setWaveform([]);
+      setRecordingPosition(0);
+
+      let lastValue = 0;
+      recordingInterval.current = setInterval(async () => {
+        setRecordingPosition(prev => prev + 100);
+        if (!recordingRef.current) return;
+        try {
+          const status = await recordingRef.current.getStatusAsync();
+          const volume = (status.metering ?? -160);
+          const normalized = Math.max(0, Math.min(1, (volume + 160) / 160));
+          const smoothed = lastValue * 0.7 + normalized * 0.3;
+          lastValue = smoothed;
+          setWaveform(prev => [...prev.slice(-maxWaveformLength + 1), smoothed]);
+        } catch {}
+      }, 100);
+
       setIsLoading(false);
     } catch (error) {
       console.error('Failed to start recording:', error);
@@ -90,18 +107,19 @@ export const useAudio = () => {
   const stopRecording = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+      if (recordingInterval.current) clearInterval(recordingInterval.current);
+
       if (!recordingRef.current) return;
 
       await recordingRef.current.stopAndUnloadAsync();
       const uri = recordingRef.current.getURI();
-      
-      if (uri) {
-        setRecordingUri(uri);
-      }
-      
+      if (uri) setRecordingUri(uri);
+
       recordingRef.current = null;
       setAudioState(prev => ({ ...prev, isRecording: false }));
+      setWaveform([]);
+      setRecordingPosition(0);
+
       setIsLoading(false);
     } catch (error) {
       console.error('Failed to stop recording:', error);
@@ -112,20 +130,16 @@ export const useAudio = () => {
   const playRecording = useCallback(async () => {
     try {
       if (!recordingUri) return;
-
       setIsLoading(true);
-      
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-      }
+
+      if (soundRef.current) await soundRef.current.unloadAsync();
 
       const { sound } = await Audio.Sound.createAsync({ uri: recordingUri });
       soundRef.current = sound;
-
       await sound.playAsync();
       setAudioState(prev => ({ ...prev, isPlaying: true }));
-      
-      sound.setOnPlaybackStatusUpdate((status) => {
+
+      sound.setOnPlaybackStatusUpdate(status => {
         if (status.isLoaded) {
           setAudioState(prev => ({
             ...prev,
@@ -133,13 +147,12 @@ export const useAudio = () => {
             position: status.positionMillis || 0,
             isPlaying: status.isPlaying,
           }));
-          
           if (status.didJustFinish) {
             setAudioState(prev => ({ ...prev, isPlaying: false }));
           }
         }
       });
-      
+
       setIsLoading(false);
     } catch (error) {
       console.error('Failed to play recording:', error);
@@ -149,14 +162,9 @@ export const useAudio = () => {
 
   const pausePlayback = useCallback(async () => {
     try {
-      if (soundRef.current) {
-        await soundRef.current.pauseAsync();
-      }
-      if (Platform.OS === 'web') {
-        speechSynthesis.cancel();
-      } else {
-        Speech.stop();
-      }
+      if (soundRef.current) await soundRef.current.pauseAsync();
+      if (Platform.OS === 'web') speechSynthesis.cancel();
+      else Speech.stop();
       setAudioState(prev => ({ ...prev, isPlaying: false }));
     } catch (error) {
       console.error('Failed to pause playback:', error);
@@ -170,26 +178,35 @@ export const useAudio = () => {
         await soundRef.current.unloadAsync();
         soundRef.current = null;
       }
-      if (Platform.OS === 'web') {
-        speechSynthesis.cancel();
-      } else {
-        Speech.stop();
-      }
-      setAudioState(prev => ({ 
-        ...prev, 
-        isPlaying: false, 
-        position: 0 
-      }));
+      if (Platform.OS === 'web') speechSynthesis.cancel();
+      else Speech.stop();
+      setAudioState(prev => ({ ...prev, isPlaying: false, position: 0 }));
     } catch (error) {
       console.error('Failed to stop playback:', error);
     }
   }, []);
 
+  const resetAudio = useCallback(async () => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+      if (recordingInterval.current) clearInterval(recordingInterval.current);
+      recordingRef.current = null;
+      setRecordingUri(null);
+      setWaveform([]);
+      setRecordingPosition(0);
+      setAudioState({ isPlaying: false, isRecording: false, duration: 0, position: 0 });
+    } catch (error) {
+      console.error('Failed to reset audio:', error);
+    }
+  }, []);
+
   const analyzePronunciation = useCallback(async (): Promise<PronunciationScore> => {
-    // Simulated pronunciation analysis - in a real app, you'd use a speech recognition service
-    const baseScore = Math.floor(Math.random() * 40) + 60; // 60-100 range
-    const variation = Math.floor(Math.random() * 20) - 10; // -10 to +10 variation
-    
+    const baseScore = Math.floor(Math.random() * 40) + 60;
+    const variation = Math.floor(Math.random() * 20) - 10;
     return {
       accuracy: Math.max(0, Math.min(100, baseScore + variation)),
       fluency: Math.max(0, Math.min(100, baseScore + variation)),
@@ -202,12 +219,15 @@ export const useAudio = () => {
     audioState,
     isLoading,
     recordingUri,
+    waveform,
+    recordingPosition,
     playTextToSpeech,
     startRecording,
     stopRecording,
     playRecording,
     pausePlayback,
     stopPlayback,
+    resetAudio,
     analyzePronunciation,
   };
 };
