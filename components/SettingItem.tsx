@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -10,6 +10,7 @@ type Props = {
   value?: boolean;
   onToggle?: () => void;
   showArrow?: boolean;
+  onPress?: () => void;
 };
 
 const SettingItem: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const SettingItem: React.FC<Props> = ({
   value,
   onToggle,
   showArrow = false,
+  onPress,
 }) => {
   const { colors } = useTheme();
 
@@ -58,7 +60,7 @@ const SettingItem: React.FC<Props> = ({
     [colors]
   );
 
-  return (
+  const content = (
     <View style={dynamicStyles.settingItem}>
       <View style={styles.settingLeft}>
         <View style={dynamicStyles.settingIcon}>{icon}</View>
@@ -80,6 +82,14 @@ const SettingItem: React.FC<Props> = ({
         <ChevronRight size={20} color={colors.textTertiary} />
       ) : null}
     </View>
+  );
+
+  return onPress ? (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+      {content}
+    </TouchableOpacity>
+  ) : (
+    content
   );
 };
 

@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router';
 import { BookOpen, Mic, BarChart3, Settings } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import React from 'react';
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <Tabs
@@ -29,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Stories',
+          title: t('stories', 'tabs'),
           tabBarIcon: ({ size, color }) => (
             <BookOpen size={size} color={color} />
           ),
@@ -38,14 +40,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="practice"
         options={{
-          title: 'Practice',
+          title: t('practice', 'tabs'),
           tabBarIcon: ({ size, color }) => <Mic size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
-          title: 'Progress',
+          title: t('progress', 'tabs'),
           tabBarIcon: ({ size, color }) => (
             <BarChart3 size={size} color={color} />
           ),
@@ -54,7 +56,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: t('settings', 'tabs'),
           tabBarIcon: ({ size, color }) => (
             <Settings size={size} color={color} />
           ),

@@ -18,11 +18,15 @@ import {
   Star,
   ChevronRight,
 } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import SettingItem from '../../components/SettingItem';
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const { colors, theme, setSpecificTheme } = useTheme();
+  const { t } = useLanguage();
   const [settings, setSettings] = useState({
     soundEffects: true,
     autoPlay: false,
@@ -116,7 +120,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={dynamicStyles.container}>
       <View style={dynamicStyles.header}>
-        <Text style={dynamicStyles.title}>Settings</Text>
+        <Text style={dynamicStyles.title}>{t('title')}</Text>
       </View>
 
       <ScrollView
@@ -125,28 +129,28 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={dynamicStyles.section}>
-          <Text style={dynamicStyles.sectionTitle}>Audio</Text>
+          <Text style={dynamicStyles.sectionTitle}>{t('audio')}</Text>
           <View style={dynamicStyles.sectionContent}>
             <SettingItem
               icon={
                 <Volume2 key="soundEffects" size={20} color={colors.primary} />
               }
-              title="Sound Effects"
-              subtitle="Play sounds for interactions"
+              title={t('soundEffects')}
+              subtitle={t('soundEffectsSubtitle')}
               value={settings.soundEffects}
               onToggle={() => toggleSetting('soundEffects')}
             />
             <SettingItem
               icon={<Mic size={20} color={colors.primary} />}
-              title="High Quality Audio"
-              subtitle="Better audio quality, uses more data"
+              title={t('highQualityAudio')}
+              subtitle={t('highQualityAudioSubtitle')}
               value={settings.highQualityAudio}
               onToggle={() => toggleSetting('highQualityAudio')}
             />
             <SettingItem
               icon={<Volume2 key="autoPlay" size={20} color={colors.primary} />}
-              title="Auto Play"
-              subtitle="Automatically play audio when viewing stories"
+              title={t('autoPlay')}
+              subtitle={t('autoPlaySubtitle')}
               value={settings.autoPlay}
               onToggle={() => toggleSetting('autoPlay')}
             />
@@ -154,58 +158,59 @@ export default function SettingsScreen() {
         </View>
 
         <View style={dynamicStyles.section}>
-          <Text style={dynamicStyles.sectionTitle}>General</Text>
+          <Text style={dynamicStyles.sectionTitle}>{t('general')}</Text>
           <View style={dynamicStyles.sectionContent}>
             <SettingItem
               icon={
                 <Bell key="notifications" size={20} color={colors.success} />
               }
-              title="Notifications"
-              subtitle="Daily practice reminders"
+              title={t('notifications')}
+              subtitle={t('notificationsSubtitle')}
               value={settings.notifications}
               onToggle={() => toggleSetting('notifications')}
             />
             <SettingItem
               icon={<Moon key="darkMode" size={20} color={colors.primary} />}
-              title="Dark Mode"
-              subtitle={`Current: ${getThemeDisplayName()}`}
+              title={t('darkMode')}
+              subtitle={`${t('darkModeSubtitle')}: ${t(getThemeDisplayName().toLowerCase())}`}
               value={theme === 'dark'}
               onToggle={handleThemeChange}
             />
             <SettingItem
               icon={<Globe size={20} color={colors.warning} />}
-              title="Language Preferences"
-              subtitle="Set primary learning language"
+              title={t('languagePreferences')}
+              subtitle={t('languagePreferencesSubtitle')}
               showArrow
+              onPress={() => router.push('/language')}
             />
           </View>
         </View>
 
         <View style={dynamicStyles.section}>
-          <Text style={dynamicStyles.sectionTitle}>Support</Text>
+          <Text style={dynamicStyles.sectionTitle}>{t('support')}</Text>
           <View style={dynamicStyles.sectionContent}>
             <SettingItem
               icon={<HelpCircle size={20} color={colors.textTertiary} />}
-              title="Help & FAQ"
-              subtitle="Get help and answers"
+              title={t('helpFAQ')}
+              subtitle={t('helpFAQSubtitle')}
               showArrow
             />
             <SettingItem
               icon={<Star size={20} color={colors.warning} />}
-              title="Rate the App"
-              subtitle="Help us improve"
+              title={t('rateApp')}
+              subtitle={t('rateAppSubtitle')}
               showArrow
             />
           </View>
         </View>
 
         <View style={dynamicStyles.footer}>
-          <Text style={dynamicStyles.footerText}>Version 1.0.0</Text>
+          <Text style={dynamicStyles.footerText}>{t('version')} 1.0.0</Text>
           <Text style={dynamicStyles.footerText}>
-            Made with Hong for language learners❤
+            {t('madeWith')}❤
           </Text>
           <Text style={dynamicStyles.footerText}>
-            Powered by Cursor🦊
+            {t('poweredBy')}🦊
           </Text>
         </View>
       </ScrollView>

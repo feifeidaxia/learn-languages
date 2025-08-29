@@ -15,10 +15,12 @@ import { useTheme } from '@/hooks/useTheme';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import { getRandomStory } from '@/data/stories';
 import StoryCardSkeleton from '@/components/StoryCardSkeleton';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function StoriesScreen() {
   const { playTextToSpeech, audioState } = useAudio();
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   const { isGenerating, generateNewStory } = useStoryGeneration();
 
@@ -101,7 +103,7 @@ export default function StoriesScreen() {
   return (
     <SafeAreaView style={dynamicStyles.container}>
       <View style={dynamicStyles.header}>
-        <Text style={dynamicStyles.title}>Multilingual Stories</Text>
+        <Text style={dynamicStyles.title}>{t('title', 'home')}</Text>
         <TouchableOpacity
           style={dynamicStyles.refreshButton}
           onPress={() => loadNewStory()}
@@ -129,12 +131,9 @@ export default function StoriesScreen() {
         </View>
 
         <View style={dynamicStyles.instructions}>
-          <Text style={dynamicStyles.instructionsTitle}>How to use</Text>
+          <Text style={dynamicStyles.instructionsTitle}>{t('howToUse', 'home')}</Text>
           <Text style={dynamicStyles.instructionsText}>
-            • Tap the refresh button to generate a new random story{'\n'}• Tap
-            the speaker icons to hear the pronunciation{'\n'}• Switch to
-            Practice tab to record yourself{'\n'}• Compare your pronunciation
-            with the original
+            {t('howToUseText', 'home')}
           </Text>
         </View>
       </ScrollView>

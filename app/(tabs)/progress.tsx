@@ -2,34 +2,37 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { TrendingUp, Award, Target, Clock } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/hooks/useLanguage';
+import ScoreItem from '@/components/ScoreItem';
 
 export default function ProgressScreen() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   const stats = [
     {
       icon: <TrendingUp size={24} color={colors.primary} />,
-      title: 'Stories Completed',
+      title: t('storiesCompleted', 'progress'),
       value: '12',
-      subtitle: '+3 this week',
+      subtitle: t('thisWeek', 'progress'),
     },
     {
       icon: <Award size={24} color={colors.success} />,
-      title: 'Average Score',
+      title: t('averageScore', 'progress'),
       value: '87%',
-      subtitle: '+5% improvement',
+      subtitle: t('improvement', 'progress'),
     },
     {
       icon: <Target size={24} color={colors.warning} />,
-      title: 'Pronunciation Goal',
+      title: t('pronunciationGoal', 'progress'),
       value: '90%',
-      subtitle: '3% to reach',
+      subtitle: t('toReach', 'progress'),
     },
     {
       icon: <Clock size={24} color={colors.error} />,
-      title: 'Practice Time',
+      title: t('practiceTime', 'progress'),
       value: '2.5h',
-      subtitle: 'This week',
+      subtitle: t('thisWeekTime', 'progress'),
     },
   ];
 
@@ -208,7 +211,7 @@ export default function ProgressScreen() {
   return (
     <SafeAreaView style={dynamicStyles.container}>
       <View style={dynamicStyles.header}>
-        <Text style={dynamicStyles.title}>Progress</Text>
+        <Text style={dynamicStyles.title}>{t('title', 'progress')}</Text>
       </View>
 
       <ScrollView
@@ -228,57 +231,36 @@ export default function ProgressScreen() {
         </View>
 
         <View style={dynamicStyles.recentScoresSection}>
-          <Text style={dynamicStyles.sectionTitle}>Recent Scores</Text>
+          <Text style={dynamicStyles.sectionTitle}>{t('recentScores', 'progress')}</Text>
           {recentScores.map((score, index) => (
-            <View key={index} style={dynamicStyles.scoreItem}>
-              <View style={dynamicStyles.scoreLeft}>
-                <Text style={dynamicStyles.scoreLang}>{score.language}</Text>
-                <Text style={dynamicStyles.scoreDate}>{score.date}</Text>
-              </View>
-              <View style={dynamicStyles.scoreRight}>
-                <Text
-                  style={[
-                    dynamicStyles.scoreValue,
-                    { color: getScoreColor(score.score) },
-                  ]}
-                >
-                  {score.score}%
-                </Text>
-                <View style={dynamicStyles.scoreBar}>
-                  <View
-                    style={[
-                      dynamicStyles.scoreBarFill,
-                      {
-                        width: `${score.score}%`,
-                        backgroundColor: getScoreColor(score.score),
-                      },
-                    ]}
-                  />
-                </View>
-              </View>
-            </View>
+            <ScoreItem
+              key={index}
+              language={score.language}
+              score={score.score}
+              date={score.date}
+            />
           ))}
         </View>
 
         <View style={dynamicStyles.achievementsSection}>
-          <Text style={dynamicStyles.sectionTitle}>Achievements</Text>
+          <Text style={dynamicStyles.sectionTitle}>{t('achievements', 'progress')}</Text>
           <View style={dynamicStyles.achievementsList}>
             <View style={dynamicStyles.achievementItem}>
               <Award size={20} color={colors.warning} />
               <Text style={dynamicStyles.achievementText}>
-                First Perfect Score!
+                {t('firstPerfectScore', 'progress')}
               </Text>
             </View>
             <View style={dynamicStyles.achievementItem}>
               <Target size={20} color={colors.success} />
               <Text style={dynamicStyles.achievementText}>
-                Practice Streak: 7 days
+                {t('practiceStreak', 'progress')}
               </Text>
             </View>
             <View style={dynamicStyles.achievementItem}>
               <TrendingUp size={20} color={colors.primary} />
               <Text style={dynamicStyles.achievementText}>
-                Consistent Improvement
+                {t('consistentImprovement', 'progress')}
               </Text>
             </View>
           </View>

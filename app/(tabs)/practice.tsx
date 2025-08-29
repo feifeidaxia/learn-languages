@@ -19,6 +19,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useStoryGeneration } from '@/hooks/useStoryGeneration';
 import StoryCardSkeleton from '@/components/StoryCardSkeleton';
 import WaveformDisplay from '@/components/WaveformDisplay';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function PracticeScreen() {
   const [currentStory, setCurrentStory] = useState<any>(getRandomStory());
@@ -29,6 +30,7 @@ export default function PracticeScreen() {
     useState<PronunciationScore | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const { colors } = useTheme();
+  const { t } = useLanguage();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { isGenerating, generateNewStory } = useStoryGeneration();
 
@@ -178,7 +180,7 @@ export default function PracticeScreen() {
   return (
     <SafeAreaView style={dynamicStyles.container}>
       <View style={dynamicStyles.header}>
-        <Text style={dynamicStyles.title}>Practice</Text>
+        <Text style={dynamicStyles.title}>{t('title', 'practice')}</Text>
         <TouchableOpacity
           style={dynamicStyles.refreshButton}
           onPress={loadNewStory}
@@ -204,13 +206,11 @@ export default function PracticeScreen() {
         )}
 
         <View style={dynamicStyles.practiceSection}>
-          <Text style={dynamicStyles.sectionTitle}>Practice Section</Text>
+          <Text style={dynamicStyles.sectionTitle}>{t('practiceSection', 'practice')}</Text>
           <Text style={dynamicStyles.selectedText}>{getSelectedText()}</Text>
 
           <Text style={dynamicStyles.instruction}>
-            1. Listen to the original pronunciation{'\n'}
-            2. Press the record button and speak{'\n'}
-            3. Stop recording to get feedback
+            {t('instructions', 'practice')}
           </Text>
 
           <AudioControls
@@ -230,7 +230,7 @@ export default function PracticeScreen() {
             <View style={{ marginTop: 16, alignItems: 'center' }}>
               <WaveformDisplay waveform={waveform} />
               <Text style={dynamicStyles.recordingText}>
-                {`Recording: ${(recordingPosition / 1000).toFixed(1)}s`}
+                {`${t('recording', 'practice')} ${(recordingPosition / 1000).toFixed(1)}s`}
               </Text>
             </View>
           )}
@@ -238,7 +238,7 @@ export default function PracticeScreen() {
           {recordingUri && !audioState.isRecording && (
             <View style={dynamicStyles.recordingStatus}>
               <Text style={dynamicStyles.recordingText}>
-                ✓ Recording saved - Press play to listen
+                {t('recordingSaved', 'practice')}
               </Text>
             </View>
           )}
