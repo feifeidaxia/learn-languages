@@ -66,11 +66,13 @@ interface ThemeColors {
 - ✅ **Stories** - 故事列表页面
 - ✅ **Practice** - 练习页面
 - ✅ **Progress** - 进度页面
+- ✅ **Language** - 语言选择页面
 - ✅ **StoryCard** - 故事卡片组件
 - ✅ **AudioControls** - 音频控制组件
 - ✅ **PronunciationFeedback** - 发音反馈组件
 - ✅ **SettingItem** - 设置项组件
 - ✅ **TabLayout** - 底部标签栏
+- ✅ **ScoreItem** - 分数项组件
 
 ## 自定义主题
 

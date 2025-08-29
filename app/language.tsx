@@ -26,15 +26,15 @@ export default function LanguageScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.card }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => router.back()}
         >
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('title', 'language')}</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('title', 'language')}</Text>
       </View>
 
       <View style={styles.languageList}>
@@ -43,14 +43,17 @@ export default function LanguageScreen() {
             key={lang.code}
             style={[
               styles.languageItem,
-              { backgroundColor: colors.card },
+              { 
+                backgroundColor: colors.card,
+                shadowColor: colors.shadow
+              },
               language === lang.code && { borderColor: colors.primary, borderWidth: 2 }
             ]}
             onPress={() => handleLanguageSelect(lang.code as LanguageCode)}
           >
             <View style={styles.languageInfo}>
-              <Text style={styles.languageName}>{lang.name}</Text>
-              <Text style={styles.languageLocalName}>{lang.localName}</Text>
+              <Text style={[styles.languageName, { color: colors.text }]}>{lang.name}</Text>
+              <Text style={[styles.languageLocalName, { color: colors.textSecondary }]}>{lang.localName}</Text>
             </View>
             {language === lang.code && (
               <View style={[styles.checkmark, { backgroundColor: colors.primary }]} />
@@ -71,7 +74,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   backButton: {
     marginRight: 16,
