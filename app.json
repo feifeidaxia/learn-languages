@@ -33,6 +33,9 @@
       "eas": {
         "projectId": "9108b4d7-e29a-4411-a712-c5067aca3a97"
       }
+    },
+    "android": {
+      "package": "com.lihongbin.zizaishuo"
     }
   }
 }
