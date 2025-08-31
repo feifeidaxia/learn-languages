@@ -34,6 +34,8 @@ export const translations = {
       helpFAQSubtitle: 'Get help and answers',
       rateApp: 'Rate the App',
       rateAppSubtitle: 'Help us improve',
+      checkUpdate: 'Check for Updates',
+      checkUpdateSubtitle: 'Check for the latest app version',
       version: 'Version',
       madeWith: 'Made with Hong for language learners',
       poweredBy: 'Powered by Cursor',
@@ -54,6 +56,17 @@ export const translations = {
       instructions: '1. Listen to the original pronunciation\n2. Press the record button and speak\n3. Stop recording to get feedback',
       recordingSaved: '✓ Recording saved - Press play to listen',
       recording: 'Recording:'
+    },
+    update: {
+      updateAvailableTitle: 'Update Available',
+      updateAvailableMessage: 'New version downloaded, restart the app to apply',
+      upToDateTitle: 'Up to Date',
+      upToDateMessage: 'You are using the latest version',
+      updateErrorTitle: 'Update Error',
+      updateErrorMessage: 'Failed to check for updates',
+      checkUpdate: 'Check for Updates',
+      checkUpdateDescription: 'Click the button below to check for the latest version',
+      checkUpdateButton: 'Check for Updates'
     },
     progress: {
       title: 'Progress',
@@ -105,6 +118,8 @@ export const translations = {
       helpFAQSubtitle: '获取帮助和解答',
       rateApp: '评价应用',
       rateAppSubtitle: '帮助我们改进',
+      checkUpdate: '检查更新',
+      checkUpdateSubtitle: '检查应用最新版本',
       version: '版本',
       madeWith: '由Hong为语言学习者精心打造',
       poweredBy: '由Cursor提供技术支持',
@@ -125,6 +140,17 @@ export const translations = {
       instructions: '1. 听原始发音\n2. 按下录音按钮并说话\n3. 停止录音获取反馈',
       recordingSaved: '✓ 录音已保存 - 按播放键收听',
       recording: '录音中:'
+    },
+    update: {
+      updateAvailableTitle: '更新可用',
+      updateAvailableMessage: '新版本已下载，重启应用后生效',
+      upToDateTitle: '已是最新',
+      upToDateMessage: '当前已是最新版本',
+      updateErrorTitle: '更新错误',
+      updateErrorMessage: '检查更新失败',
+      checkUpdate: '检查更新',
+      checkUpdateDescription: '点击下方按钮检查应用最新版本',
+      checkUpdateButton: '检查更新'
     },
     progress: {
       title: '进度',
@@ -176,6 +202,8 @@ export const translations = {
       helpFAQSubtitle: 'サポートと回答を得る',
       rateApp: 'アプリを評価',
       rateAppSubtitle: '改善にご協力ください',
+      checkUpdate: 'アップデートを確認',
+      checkUpdateSubtitle: '最新バージョンを確認',
       version: 'バージョン',
       madeWith: 'Hongが言語学習者のために作成',
       poweredBy: 'Cursorによる技術提供',
@@ -196,6 +224,17 @@ export const translations = {
       instructions: '1. オリジナルの発音を聞く\n2. 録音ボタンを押して話す\n3. 録音を停止してフィードバックを得る',
       recordingSaved: '✓ 録音が保存されました - 再生ボタンを押して聞く',
       recording: '録音中:'
+    },
+    update: {
+      updateAvailableTitle: 'アップデート可能',
+      updateAvailableMessage: '新しいバージョンがダウンロードされました。アプリを再起動してください',
+      upToDateTitle: '最新版',
+      upToDateMessage: '最新バージョンを使用中です',
+      updateErrorTitle: 'アップデートエラー',
+      updateErrorMessage: 'アップデートの確認に失敗しました',
+      checkUpdate: 'アップデートを確認',
+      checkUpdateDescription: '最新バージョンを確認するには下のボタンをクリックしてください',
+      checkUpdateButton: 'アップデートを確認'
     },
     progress: {
       title: '進捗',
@@ -259,31 +298,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  // 翻译函数
-  const t = (key: string, section: string = 'settings') => {
-    const keys = key.split('.');
-    let result = translations[language];
-    
-    // 首先检查section
-    if (section && result[section]) {
-      result = result[section];
-    }
-    
-    // 然后按照key路径查找
-    for (const k of keys) {
-      if (result && result[k]) {
-        result = result[k];
-      } else {
-        // 如果找不到翻译，返回英文版本或键名
-        const enResult = getEnglishTranslation(key, section);
-        return enResult || key;
-      }
-    }
-    
-    return result as string;
-  };
-
-  // 获取英文翻译作为后备
+   // 获取英文翻译作为后备
   const getEnglishTranslation = (key: string, section: string = 'settings') => {
     const keys = key.split('.');
     let result = translations.en;
@@ -302,6 +317,39 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     return result as string;
   };
+
+  // 翻译函数
+ const t = (key: string, section: string = 'settings') => {
+  const keys = key.split('.');
+  let result = translations[language];
+
+  // 先按 section 查
+  if (section && result[section]) {
+    let sectionObj = result[section];
+    for (const k of keys) {
+      if (sectionObj && sectionObj[k]) {
+        return sectionObj[k] as string;
+      }
+    }
+  }
+
+  // 如果没找到，遍历所有一级 section
+  for (const sec of Object.keys(result)) {
+    let obj: any = result[sec];
+    for (const k of keys) {
+      if (obj && obj[k]) {
+        obj = obj[k];
+      } else {
+        obj = null;
+        break;
+      }
+    }
+    if (obj) return obj as string;
+  }
+
+  // 最后 fallback 英文
+  return getEnglishTranslation(key, section) || key;
+};
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
