@@ -78,8 +78,9 @@ export default function ProgressScreen() {
         statsGrid: {
           flexDirection: 'row',
           flexWrap: 'wrap',
-          paddingHorizontal: 16,
-          paddingVertical: 16,
+          justifyContent: 'space-between',
+          paddingHorizontal: 18,
+          paddingVertical: 2,
           gap: 12,
         },
         statCard: {

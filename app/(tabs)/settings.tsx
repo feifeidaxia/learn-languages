@@ -17,6 +17,7 @@ import {
   HelpCircle,
   Star,
   ChevronRight,
+  RefreshCw,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import SettingItem from '../../components/SettingItem';
@@ -199,6 +200,13 @@ export default function SettingsScreen() {
               icon={<Star size={20} color={colors.warning} />}
               title={t('rateApp')}
               subtitle={t('rateAppSubtitle')}
+              showArrow
+            />
+            <SettingItem
+              icon={<RefreshCw size={20} color={colors.info} />}
+              title={t('checkUpdate')}
+              subtitle={t('checkUpdateSubtitle')}
+              onPress={() => router.push('/update')}
               showArrow
             />
           </View>

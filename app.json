@@ -8,6 +8,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "runtimeVersion": "1.0.0",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.lihongbin.zizaishuo",
@@ -36,6 +37,9 @@
     },
     "android": {
       "package": "com.lihongbin.zizaishuo"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9108b4d7-e29a-4411-a712-c5067aca3a97"
     }
   }
 }
