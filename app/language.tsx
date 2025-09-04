@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 0, //elevation 是 Android 专用 的属性，用来控制 投影阴影的高度。
   },
   languageInfo: {
     flex: 1,

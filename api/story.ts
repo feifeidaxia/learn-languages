@@ -37,7 +37,7 @@ export async function generateStory(): Promise<Story> {
           {
             role: 'system',
             content:
-              '你是一个多语言故事生成专家。请生成符合要求的多语言故事，确保内容有趣、教育性强，适合语言学习。',
+              '你是一个多语言故事生成专家。请生成符合要求的多语言故事，确保内容有趣、教育性强，适合成年人语言学习。',
           },
           { role: 'user', content: prompt },
         ],

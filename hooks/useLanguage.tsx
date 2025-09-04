@@ -83,6 +83,13 @@ export const translations = {
       firstPerfectScore: 'First Perfect Score!',
       practiceStreak: 'Practice Streak: 7 days',
       consistentImprovement: 'Consistent Improvement'
+    },
+    splash: {
+      loadingResources: 'Loading language resources...',
+      initializingVoice: 'Initializing voice engine...',
+      preparingContent: 'Preparing learning content...',
+      startingJourney: 'Starting your language journey...',
+      tagline: 'Start your multilingual learning journey 🌍'
     }
   },
   zh: {
@@ -167,6 +174,13 @@ export const translations = {
       firstPerfectScore: '首次满分!',
       practiceStreak: '练习连续: 7天',
       consistentImprovement: '持续进步'
+    },
+    splash: {
+      loadingResources: '正在加载语言资源...',
+      initializingVoice: '初始化语音引擎...',
+      preparingContent: '准备学习内容...',
+      startingJourney: '即将开始语言之旅...',
+      tagline: '开启你的多语言学习之旅 🌍'
     }
   },
   ja: {
@@ -251,6 +265,13 @@ export const translations = {
       firstPerfectScore: '初めての満点!',
       practiceStreak: '練習連続: 7日間',
       consistentImprovement: '継続的な向上'
+    },
+    splash: {
+      loadingResources: '言語リソースを読み込み中...',
+      initializingVoice: '音声エンジンを初期化中...',
+      preparingContent: '学習コンテンツを準備中...',
+      startingJourney: '言語学習の旅を始めます...',
+      tagline: '多言語学習の旅を始めましょう 🌍'
     }
   }
 };

@@ -4,6 +4,8 @@ import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
 import { AudioState, PronunciationScore } from '@/types/Story';
 
+type Timer = ReturnType<typeof setTimeout>;
+
 export const useAudio = () => {
   const [audioState, setAudioState] = useState<AudioState>({
     isPlaying: false,
@@ -19,7 +21,7 @@ export const useAudio = () => {
 
   const soundRef = useRef<Audio.Sound | null>(null);
   const recordingRef = useRef<Audio.Recording | null>(null);
-  const recordingInterval = useRef<NodeJS.Timer | null>(null);
+  const recordingInterval = useRef<Timer | null>(null);
   const maxWaveformLength = 30;
 
   const initializeAudio = useCallback(async () => {
@@ -52,6 +54,8 @@ export const useAudio = () => {
       } else {
         await Speech.speak(text, {
           language: languageMap[language],
+          pitch: language === 'ja' ? 1.1 : 1.0, // 日语需要稍高音调
+          rate: language === 'ja' ? 0.9 : 1.0,  // 日语语速稍慢
           onDone: () => {
             setAudioState(prev => ({ ...prev, isPlaying: false }));
             setIsLoading(false);

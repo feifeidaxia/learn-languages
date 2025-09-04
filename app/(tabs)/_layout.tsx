@@ -3,9 +3,10 @@ import { BookOpen, Mic, BarChart3, Settings } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import React from 'react';
+import { Pressable } from 'react-native';
 
 export default function TabLayout() {
-  const { colors } = useTheme();
+  const { colors ,isDark} = useTheme();
   const { t } = useLanguage();
 
   return (
@@ -16,16 +17,28 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 80,
+          borderTopWidth: 0,
+          // borderTopColor: isDark === true ? colors.border : "transparent",
+          // paddingBottom: 8,
+          paddingTop: 4,
+          height: 66,
+          // elevation: 0, // 移除安卓阴影
+          // shadowOpacity: 0, // 移除iOS阴影
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
         },
+        tabBarButton: (props) => (
+          <Pressable
+            {...props}
+            android_ripple={{ color: 'transparent' }}
+            style={({ pressed }) => [
+              props.style,
+              pressed && { opacity: 0.7 }
+            ]}
+          />
+        ),
       }}
     >
       <Tabs.Screen
