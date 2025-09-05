@@ -105,7 +105,6 @@ export default function RootLayout() {
               initialRouteName={initialRoute}
             >
               <Stack.Screen name="cover" />
-              <Stack.Screen name="splash" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="+not-found" />
             </Stack>
