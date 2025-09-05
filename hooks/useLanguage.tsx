@@ -41,6 +41,8 @@ export const translations = {
       poweredBy: 'Powered by Cursor',
       light: 'Light',
       dark: 'Dark',
+      voicePreferences: 'Voice Preferences',
+      voicePreferencesSubtitle: 'Select your preferred voice style',
     },
     language: {
       title: 'Language Preferences',
@@ -132,6 +134,8 @@ export const translations = {
       poweredBy: '由Cursor提供技术支持',
       light: '浅色',
       dark: '深色',
+      voicePreferences: '音色偏好',
+      voicePreferencesSubtitle: '选择你喜欢的音色风格',
     },
     language: {
       title: '语言偏好',
@@ -223,6 +227,8 @@ export const translations = {
       poweredBy: 'Cursorによる技術提供',
       light: 'ライト',
       dark: 'ダーク',
+      voicePreferences: '音声設定',
+      voicePreferencesSubtitle: '好みの音声スタイルを選択',
     },
     language: {
       title: '言語設定',

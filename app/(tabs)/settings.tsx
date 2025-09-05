@@ -18,6 +18,7 @@ import {
   Star,
   ChevronRight,
   RefreshCw,
+  AudioLines
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import SettingItem from '../../components/SettingItem';
@@ -147,6 +148,13 @@ export default function SettingsScreen() {
               subtitle={t('highQualityAudioSubtitle')}
               value={settings.highQualityAudio}
               onToggle={() => toggleSetting('highQualityAudio')}
+            />
+            <SettingItem
+              icon={<AudioLines size={20} color={colors.primary} />}
+              title={t('voicePreferences')}
+              subtitle={t('voicePreferencesSubtitle')}
+              showArrow
+              onPress={() => router.push('/voice')}
             />
             <SettingItem
               icon={<Volume2 key="autoPlay" size={20} color={colors.primary} />}
