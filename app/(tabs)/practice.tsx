@@ -66,7 +66,7 @@ export default function PracticeScreen() {
 
   const handlePlayAudio = (text: string, language: 'zh' | 'en' | 'ja') => {
     setSelectedLanguage(language);
-    playTextToSpeech(text, language);
+    playTextToSpeech(text);
   };
 
   const handleStartRecording = async () => {

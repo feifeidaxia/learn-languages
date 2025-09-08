@@ -156,13 +156,13 @@ export default function SettingsScreen() {
               showArrow
               onPress={() => router.push('/voice')}
             />
-            <SettingItem
+            {/* <SettingItem
               icon={<Volume2 key="autoPlay" size={20} color={colors.primary} />}
               title={t('autoPlay')}
               subtitle={t('autoPlaySubtitle')}
               value={settings.autoPlay}
               onToggle={() => toggleSetting('autoPlay')}
-            />
+            /> */}
           </View>
         </View>
 

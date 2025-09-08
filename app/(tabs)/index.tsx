@@ -49,8 +49,9 @@ export default function StoriesScreen() {
     }
   };
 
-  const handlePlayAudio = (text: string, language: 'zh' | 'en' | 'ja') => {
-    playTextToSpeech(text, language);
+  const handlePlayAudio = (text: string) => {
+    if (!text) return;
+    playTextToSpeech(text);
   };
 
   const dynamicStyles = useMemo(

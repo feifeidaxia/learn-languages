@@ -3,6 +3,11 @@ import { Audio } from 'expo-av';
 import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
 import { AudioState, PronunciationScore } from '@/types/Story';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Base64 } from 'js-base64';
+import { fetchTTS } from '@/api/tts';
+
+const VOICE_KEY = '@user-voice';
 
 type Timer = ReturnType<typeof setTimeout>;
 
@@ -36,42 +41,44 @@ export const useAudio = () => {
     }
   }, []);
 
-  const playTextToSpeech = useCallback(async (text: string, language: 'zh' | 'en' | 'ja') => {
-    try {
-      setIsLoading(true);
-      setAudioState(prev => ({ ...prev, isPlaying: true }));
+const playTextToSpeech = useCallback(async (text: string) => {
+  try {
+    setIsLoading(true);
+    setAudioState(prev => ({ ...prev, isPlaying: true }));
 
-      const languageMap = { zh: 'zh-CN', en: 'en-US', ja: 'ja-JP' };
-
-      if (Platform.OS === 'web') {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = languageMap[language];
-        utterance.onend = () => {
-          setAudioState(prev => ({ ...prev, isPlaying: false }));
-          setIsLoading(false);
-        };
-        speechSynthesis.speak(utterance);
-      } else {
-        await Speech.speak(text, {
-          language: languageMap[language],
-          pitch: language === 'ja' ? 1.1 : 1.0, // 日语需要稍高音调
-          rate: language === 'ja' ? 0.9 : 1.0,  // 日语语速稍慢
-          onDone: () => {
-            setAudioState(prev => ({ ...prev, isPlaying: false }));
-            setIsLoading(false);
-          },
-          onError: () => {
-            setAudioState(prev => ({ ...prev, isPlaying: false }));
-            setIsLoading(false);
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Text-to-speech error:', error);
-      setAudioState(prev => ({ ...prev, isPlaying: false }));
-      setIsLoading(false);
+    let selectedVoice = await AsyncStorage.getItem(VOICE_KEY);
+    if (!selectedVoice) {
+      selectedVoice = 'alloy';
+      await AsyncStorage.setItem(VOICE_KEY, selectedVoice);
     }
-  }, []);
+
+    const audioBuffer = await fetchTTS({ text, voice: selectedVoice });
+
+    const base64Audio = Base64.fromUint8Array(new Uint8Array(audioBuffer));
+    const uri = `data:audio/mpeg;base64,${base64Audio}`;
+
+    if (soundRef.current) await soundRef.current.unloadAsync();
+
+    const { sound } = await Audio.Sound.createAsync(
+      { uri },
+      { shouldPlay: true }
+    );
+
+    soundRef.current = sound;
+
+    sound.setOnPlaybackStatusUpdate(status => {
+      if (status.isLoaded && status.didJustFinish) {
+        setAudioState(prev => ({ ...prev, isPlaying: false }));
+        setIsLoading(false);
+      }
+    });
+  } catch (error) {
+    console.error('Text-to-speech error:', error);
+    setAudioState(prev => ({ ...prev, isPlaying: false }));
+    setIsLoading(false);
+  }
+}, []);
+
 
   const startRecording = useCallback(async () => {
     try {
